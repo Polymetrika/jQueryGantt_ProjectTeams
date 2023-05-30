@@ -1,6 +1,34 @@
+body {
+  background-color: #fff;
+  overflow: hidden;
+}
+#workSpace{
+  padding:0px; overflow-y:auto; overflow-x:hidden;border:1px solid #e5e5e5;position:relative;margin:0 5px
+}
+.resEdit {
+  padding: 15px;
+}
 
-body{
-  /*overflow: hidden;*/
+.resLine {
+  width: 95%;
+  padding: 3px;
+  margin: 5px;
+  border: 1px solid #d0d0d0;
+}
+
+
+.ganttButtonBar h1{
+  color: #000000;
+  font-weight: bold;
+  font-size: 28px;
+  margin-left: 10px;
+}
+#gimmeBack{
+display:none;
+}
+
+#gantEditorTemplates{
+display:none;
 }
 
 .TWGanttWorkSpace.ganttFullScreen{

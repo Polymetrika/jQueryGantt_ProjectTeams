@@ -1,8 +1,8 @@
 <!DOCTYPE HTML>
-<html>
+<html lang="en">
 <head>
-  <meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=EDGE"/>
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Teamwork</title>
 
   <link rel=stylesheet href="platform.css" type="text/css">
@@ -43,40 +43,17 @@
   <!--<script src="libs/profiling.js"></script>-->
   <!--<script type="text/javascript" src="ganttTestSuite.js"></script>-->
 </head>
-<body style="background-color: #fff;">
+<body>
 
 
-<div id="ndo" style="position:absolute;right:5px;top:5px;width:378px;padding:5px;background-color: #FFF5E6; border:1px solid #F9A22F; font-size:12px" class="noprint">
-  This Gantt editor is free thanks to <a href="http://twproject.com" target="_blank">Twproject</a> where it can be used on a complete and flexible project management solution.<br> Get your projects done! Give <a href="http://twproject.com" target="_blank">Twproject a try now</a>.
-</div>
-<div id="workSpace" style="padding:0px; overflow-y:auto; overflow-x:hidden;border:1px solid #e5e5e5;position:relative;margin:0 5px"></div>
+
+<div id="workSpace" ></div>
 
 <style>
-  .resEdit {
-    padding: 15px;
-  }
-
-  .resLine {
-    width: 95%;
-    padding: 3px;
-    margin: 5px;
-    border: 1px solid #d0d0d0;
-  }
-
-  body {
-    overflow: hidden;
-  }
-
-  .ganttButtonBar h1{
-    color: #000000;
-    font-weight: bold;
-    font-size: 28px;
-    margin-left: 10px;
-  }
 
 </style>
 
-<form id="gimmeBack" style="display:none;" action="../gimmeBack.jsp" method="post" target="_blank"><input type="hidden" name="prj" id="gimBaPrj"></form>
+<form id="gimmeBack" action="../gimmeBack.jsp" method="post" target="_blank"><input type="hidden" name="prj" id="gimBaPrj"></form>
 
 <script type="text/javascript">
 
@@ -97,7 +74,7 @@ $(function() {
   delete ge.gantt.zoom;
 
   var project=loadFromLocalStorage();
-
+  var contextPath;
   if (!project.canWrite)
     $(".ganttButtonBar button.requireWrite").attr("disabled","true");
 
@@ -195,11 +172,12 @@ function upload(uploadedFile) {
 function saveGanttOnServer() {
 
   //this is a simulation: save data to the local storage or to the textarea
-  //saveInLocalStorage();
+  let projectname=document.getElementById("project-name").value||"teamworkGantDemo";
+  saveInLocalStorage(projectname);
 
-  var prj = ge.saveProject();
+  // var prj = ge.saveProject();
 
-  download(JSON.stringify(prj, null, '\t'), "MyProject.json", "application/json");
+  // download(JSON.stringify(prj, null, '\t'), "MyProject.json", "application/json");
 
   /*
 
@@ -285,11 +263,12 @@ function getFile() {
 }
 
 
-function loadFromLocalStorage() {
+function loadFromLocalStorage(load) {
   var ret;
+  let projectname=((document.getElementById("project-name").value)||"").trim()||"teamworkGantDemo";
   if (localStorage) {
-    if (localStorage.getObject("teamworkGantDemo")) {
-      ret = localStorage.getObject("teamworkGantDemo");
+    if (localStorage.getObject(projectname)) {
+      ret = localStorage.getObject(projectname);
     }
   }
 
@@ -297,15 +276,32 @@ function loadFromLocalStorage() {
   if (!ret || !ret.tasks || ret.tasks.length == 0){
     ret=getDemoProject();
   }
+  if(load==true){
+    ge.loadProject(ret);
+     ge.checkpoint();
+  }
+     document.getElementById("project-name").value=projectname;
   return ret;
 }
 
+function deleteFromLocalStorage() {
+  var ret;
+  let projectname=((document.getElementById("project-name").value)||"").trim();
+  if (localStorage) {
+    if (localStorage.getObject(projectname)) {
+      ret = localStorage.removeItem(projectname);
+      newProject();
+    }
+  }
 
-function saveInLocalStorage() {
+  return ret;
+}
+
+function saveInLocalStorage(projectname) {
   var prj = ge.saveProject();
 
   if (localStorage) {
-    localStorage.setObject("teamworkGantDemo", prj);
+    localStorage.setObject(projectname, prj);
   }
 }
 
@@ -378,6 +374,7 @@ function editResources(){
 
 function initializeHistoryManagement(taskId){
 
+  if(typeof contextPath=="undefined") contextPath="";
   //retrieve from server the list of history points in millisecond that represent the instant when the data has been recorded
   //response: {ok:true, historyPoints: [1498168800000, 1498600800000, 1498687200000, 1501538400000, …]}
   $.getJSON(contextPath+"/applications/teamwork/task/taskAjaxController.jsp", {CM: "GETGANTTHISTPOINTS", OBJID:taskId}, function (response) {
@@ -490,19 +487,18 @@ function showBaselineInfo (event,element){
     $(element).hideBalloon();
   })
 }
-
 </script>
 
 
 
 
 
-<div id="gantEditorTemplates" style="display:none;">
+<div id="gantEditorTemplates" >
 <div class="__template__" type="GANTBUTTONS">
   <!--
   <div class="ganttButtonBar noprint">
     <div class="buttons">
-      <a href="https://gantt.twproject.com/"><img src="res/twGanttLogo.png" alt="Twproject" align="absmiddle" style="max-width: 136px; padding-right: 15px"></a>
+      <a href="https://gantt.twproject.com/" id="homepagelink"><img src="res/twGanttLogo.png" alt="Twproject" align="absmiddle" style="max-width: 136px; padding-right: 15px"></a>
 
       <button onclick="$('#workSpace').trigger('undo.gantt');return false;" class="button textual icon requireCanWrite" title="undo"><span class="teamworkIcon">&#39;</span></button>
       <button onclick="$('#workSpace').trigger('redo.gantt');return false;" class="button textual icon requireCanWrite" title="redo"><span class="teamworkIcon">&middot;</span></button>
@@ -542,9 +538,13 @@ function showBaselineInfo (event,element){
 
     <div>
       <button onclick="saveGanttOnServer();" class="button first big requireWrite" title="Save">Save</button>
+      <label for="project-name">Project Name: </label>
+      <input type="text" name="project-name" id="project-name">
+      <button onclick="loadFromLocalStorage(true);" class="button first big requireWrite" title="Load saved project">Load</button>
+      <button onclick="deleteFromLocalStorage();" class="button big requireWrite bigdelete" title="Delete saved project">🗑 Local</button>
+      <label for="load-file">Load file: </label>
       <input type="file" name="load-file" id="load-file">
-      <label for="load-file">Load</label>
-      <button onclick='newProject();' class='button requireWrite newproject'><em>clear project</em></button>
+      <button onclick='newProject();' class='button requireWrite newproject'><em>Clear</em></button>
       <button class="button login" title="login/enroll" onclick="loginEnroll($(this));" style="display:none;">login/enroll</button>
       <button class="button opt collab" title="Start with Twproject" onclick="collaborate($(this));" style="display:none;"><em>collaborate</em></button>
     </div>

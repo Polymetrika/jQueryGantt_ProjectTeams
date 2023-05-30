@@ -726,6 +726,7 @@ GanttMaster.prototype.saveGantt = function (forTransaction) {
 GanttMaster.prototype.markUnChangedTasksAndAssignments=function(newProject){
   //console.debug("markUnChangedTasksAndAssignments");
   //si controlla che ci sia qualcosa di cambiato, ovvero che ci sia l'undo stack
+  if(this.__undoStack==undefined)this.__undoStack==[];
   if (this.__undoStack.length>0){
     var oldProject=JSON.parse(this.__undoStack[0]);
     //si looppano i "nuovi" task
@@ -1647,6 +1648,7 @@ GanttMaster.prototype.manageSaveRequired=function(ev, showSave) {
   function checkChanges() {
     var changes = false;
     //there is somethin in the redo stack?
+  if(typeof self.__undoStack=="undefined") self.__undoStack=[];
     if (self.__undoStack.length > 0) {
       var oldProject = JSON.parse(self.__undoStack[0]);
       //si looppano i "nuovi" task

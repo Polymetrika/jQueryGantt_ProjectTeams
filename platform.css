@@ -549,13 +549,16 @@ Buttons
   padding: 0;
   margin: 0
 }
-
 .button.delete {
   color: #B61E2D;
   padding: 0;
   margin: 0
 }
 
+button.bigdelete{
+  background-color: #B61E2D;
+  font-weight: bold;
+}
 .button:hover {
   background-color: #506b84;
   color: rgba(255, 255, 255, 0.75);
